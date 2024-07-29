@@ -4,6 +4,9 @@ function love.load()
     -- Importing the <anim8> library:
     anim8 = require 'libs/anim8'
     love.graphics.setDefaultFilter('nearest', 'nearest')
+    -- Importing the <sti> library:
+    sti = require 'libs/sti'
+    gameMap = sti('maps/map1.lua')
     -- Player table declaration:
     player = {}
     player.posX = 10 -- This is the player position at X axis.
@@ -66,7 +69,10 @@ end
 -- This is a core function of Love2D.
 -- ... It is responsible for the game loop drawing to screen logic.
 function love.draw()
-    love.graphics.scale(8, 8)
+    -- This adjust the game view scale.
+    love.graphics.scale(4, 4)
+    -- Drawing the game map:
+    gameMap:draw(nil, nil, 4, 4)
     -- Drawing the player as a circle:
     player.anim:draw(player.spriteSheet, player.posX, player.posY)
 end
