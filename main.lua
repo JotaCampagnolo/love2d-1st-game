@@ -1,6 +1,10 @@
 -- This is a core function of Love2D.
 -- ... It is responsible for the initial loading.
 function love.load()
+    -- Importing the <camera> library:
+    camera = require 'libs/camera'
+    cam = camera()
+    cam:zoom(4)
     -- Importing the <anim8> library:
     anim8 = require 'libs/anim8'
     love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -9,8 +13,8 @@ function love.load()
     gameMap = sti('maps/map1.lua')
     -- Player table declaration:
     player = {}
-    player.posX = 10 -- This is the player position at X axis.
-    player.posY = 10 -- This is the player position at Y axis.
+    player.posX = 0 -- This is the player position at X axis.
+    player.posY = 0 -- This is the player position at Y axis.
     player.speed = 0.1 -- This si the player speed.
     player.isMoving = false
     player.direction = -1
@@ -64,15 +68,40 @@ function love.update(dt)
     end
     -- Updating the player animation:
     player.anim:update(dt)
+    -- Camera
+    cam:lookAt(player.posX, player.posY)
+    -- Camera limits:
+    local w = love.graphics.getWidth() / 4
+    local h = love.graphics.getHeight() / 4
+    local mapW = (gameMap.width * gameMap.tilewidth)
+    local mapH = (gameMap.height * gameMap.tileheight)
+    -- Left border
+    if cam.x < (w/2) then
+        cam.x = (w/2)
+    end
+    -- Right border
+    if cam.y < h/2 then
+        cam.y = h/2
+    end
+    -- Right border
+    if cam.x > (mapW - w/2) then
+        cam.x = (mapW - w/2)
+    end
+    -- Bottom border
+    if cam.y > (mapH - h/2) then
+        cam.y = (mapH - h/2)
+    end
 end
 
 -- This is a core function of Love2D.
 -- ... It is responsible for the game loop drawing to screen logic.
 function love.draw()
-    -- This adjust the game view scale.
-    love.graphics.scale(4, 4)
-    -- Drawing the game map:
-    gameMap:draw(nil, nil, 4, 4)
-    -- Drawing the player as a circle:
-    player.anim:draw(player.spriteSheet, player.posX, player.posY)
+    cam:attach()
+        -- Drawing the game map:
+        gameMap:drawLayer(gameMap.layers['Ground'])
+        gameMap:drawLayer(gameMap.layers['Ground Borders'])
+        gameMap:drawLayer(gameMap.layers['Props'])
+        -- Drawing the player:
+        player.anim:draw(player.spriteSheet, player.posX, player.posY)
+    cam:detach()
 end
